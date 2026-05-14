@@ -42,8 +42,11 @@ async function fetchAPI(endpoint: string, options?: RequestInit) {
   const token = auth.getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...options?.headers,
   };
+  if (options?.headers) {
+    const h = options.headers as Record<string, string>;
+    Object.assign(headers, h);
+  }
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
