@@ -2,26 +2,35 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { AppShell } from "@/components/layout/AppShell";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { FileText, Plus } from "lucide-react";
 
 export default function ArticlesPage() {
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Articles</h1>
-          <p className="text-gray-500 mt-1">Processed articles from your content pipeline</p>
-        </div>
-        <Button variant="primary">Create Article</Button>
-      </div>
+    <AppShell>
+      <PageHeader
+        title="Articles"
+        description="Processed articles from your content pipeline"
+        actions={
+          <Button size="sm">
+            <Plus className="w-4 h-4" />
+            Create Article
+          </Button>
+        }
+      />
 
       <Card padding="lg">
         <CardHeader>
           <CardTitle>Article Library</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Your processed articles will appear here.</p>
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <FileText className="w-12 h-12 text-gray-300 mb-4" />
+            <p className="text-gray-500">Your processed articles will appear here.</p>
+          </div>
         </CardContent>
       </Card>
-    </div>
+    </AppShell>
   );
 }

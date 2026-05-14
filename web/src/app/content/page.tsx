@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { api } from "@/lib/api";
 import { AuthCheck } from "@/components/AuthCheck";
 import { AppShell } from "@/components/layout/AppShell";
@@ -52,10 +51,7 @@ export default function ContentPage() {
   return (
     <AuthCheck>
       <AppShell>
-        <PageHeader
-          title="Content"
-          subtitle={`${total} items collected`}
-        />
+        <PageHeader title="Content" subtitle={`${total} items collected`} />
 
         {loading ? (
           <div className="space-y-3">
@@ -72,19 +68,14 @@ export default function ContentPage() {
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-100">
             {contents.map((item) => (
-              <Link
+              <ListItem
                 key={item.id}
-                href={item.url || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <ListItem
-                  icon={FileText}
-                  title={truncate(item.title, 60)}
-                  subtitle={`${truncate(item.content.replace(/<[^>]*>/g, ""), 80)} • ${formatDate(item.created_at)}`}
-                />
-              </Link>
+                icon={FileText}
+                title={truncate(item.title, 60)}
+                subtitle={`${truncate(item.content.replace(/<[^>]*>/g, ""), 80)} • ${formatDate(item.created_at)}`}
+                href={item.url || undefined}
+                onClick={item.url ? undefined : () => {}}
+              />
             ))}
           </div>
         )}

@@ -50,7 +50,7 @@ export function ListItem({
   );
 
   const wrapperClass =
-    'flex items-center gap-4 p-4 -mx-4 px-4 rounded-xl transition-colors group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer';
+    'flex items-center gap-4 p-4 rounded-xl transition-colors group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer';
 
   if (href) {
     return (
