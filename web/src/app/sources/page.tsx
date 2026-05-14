@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { ArrowLeft, Plus, Play, Trash2, Rss, Github, Twitter } from "lucide-react";
 import { AuthCheck } from "@/components/AuthCheck";
 
 interface Source {
@@ -33,22 +32,15 @@ export default function SourcesPage() {
     load();
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!confirm("Delete this source?")) return;
     try {
       await api.sources.delete(id);
       setSources(sources.filter((s) => s.id !== id));
-    } catch (e) {
-      console.error("Failed to delete:", e);
-    }
-  };
-
-  const handleRun = async (id: string) => {
-    try {
-      await api.sources.run(id);
-      alert("Task triggered!");
-    } catch (e) {
-      console.error("Failed to run:", e);
+    } catch (err) {
+      console.error("Failed to delete:", err);
     }
   };
 
@@ -87,7 +79,7 @@ export default function SourcesPage() {
         ) : (
           <div className="space-y-4">
             {sources.map((source) => (
-              <div key={source.id} className="bg-white rounded-lg shadow p-6">
+              <Link key={source.id} href={`/sources/${source.id}`} className="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className={`p-2 rounded-lg ${source.enabled ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-400"}`}>
@@ -109,10 +101,7 @@ export default function SourcesPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => handleRun(source.id)} className="p-2 text-blue-600 hover:bg-blue-50 rounded">
-                      <Play className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(source.id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
+                    <button onClick={(e) => handleDelete(e, source.id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <span className={`px-2 py-1 text-xs rounded-full ${source.enabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
@@ -120,7 +109,7 @@ export default function SourcesPage() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
