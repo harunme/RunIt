@@ -4,23 +4,20 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  LayoutDashboard,
   Rss,
   Brain,
   Send,
   FileText,
-  CheckSquare,
   Settings,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   {
-    group: "Overview",
-    items: [{ name: "Dashboard", href: "/", icon: LayoutDashboard }],
-  },
-  {
     group: "Ingest",
-    items: [{ name: "Sources", href: "/sources", icon: Rss }],
+    items: [
+      { name: "Content", href: "/content", icon: FileText },
+      { name: "Sources", href: "/sources", icon: Rss },
+    ],
   },
   {
     group: "Process",
@@ -29,13 +26,6 @@ const NAV_ITEMS = [
   {
     group: "Publish",
     items: [{ name: "Publishers", href: "/publishers", icon: Send }],
-  },
-  {
-    group: "Review",
-    items: [
-      { name: "Content", href: "/content", icon: FileText },
-      { name: "Tasks", href: "/tasks", icon: CheckSquare },
-    ],
   },
   {
     group: "System",
