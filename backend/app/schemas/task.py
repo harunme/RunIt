@@ -26,3 +26,22 @@ class TaskListResponse(BaseModel):
     total: int
     page: int
     page_size: int
+
+
+class TaskLogResponse(BaseModel):
+    """Schema for TaskLog response."""
+    id: str
+    task_id: str
+    level: str
+    message: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class TaskLogListResponse(BaseModel):
+    """Schema for paginated TaskLog list response."""
+    items: List[TaskLogResponse]
+    total: int
+    page: int
+    page_size: int
