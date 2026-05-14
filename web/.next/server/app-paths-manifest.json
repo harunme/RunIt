@@ -1,7 +1,15 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
+  "/agents/new/page": "app/agents/new/page.js",
+  "/agents/page": "app/agents/page.js",
   "/page": "app/page.js",
-  "/sources/page": "app/sources/page.js",
-  "/sources/new/page": "app/sources/new/page.js",
   "/content/page": "app/content/page.js",
-  "/settings/page": "app/settings/page.js"
+  "/login/page": "app/login/page.js",
+  "/register/page": "app/register/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/publishers/page": "app/publishers/page.js",
+  "/sources/[id]/page": "app/sources/[id]/page.js",
+  "/sources/new/page": "app/sources/new/page.js",
+  "/sources/page": "app/sources/page.js",
+  "/tasks/page": "app/tasks/page.js"
 }

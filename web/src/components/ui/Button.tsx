@@ -1,10 +1,9 @@
 'use client';
 
-import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import React, { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '~/lib/utils';
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -29,26 +28,23 @@ const buttonVariants = cva(
   }
 );
 
-interface ButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof HTMLMotionProps<'button'>>,
-    VariantProps<typeof buttonVariants> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   loading?: boolean;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, disabled, children, ...props }, ref) => {
+  ({ className, variant, size, loading, disabled, type = 'button', children, ...props }, ref) => {
     return (
-      <motion.button
+      <button
         ref={ref}
+        type={type}
         className={cn(buttonVariants({ variant, size, className }))}
         disabled={disabled || loading}
-        whileHover={{ y: -1 }}
-        whileTap={{ scale: 0.98 }}
         {...props}
       >
         {loading && <Loader2 className="h-4 w-4 animate-spin" />}
         {children}
-      </motion.button>
+      </button>
     );
   }
 );

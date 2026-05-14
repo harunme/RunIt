@@ -1,0 +1,143 @@
+<h2>Frontend Visual Redesign Options</h2>
+<p class="subtitle">Reference: RedInk's modern sidebar layout with soft red accents</p>
+
+<div class="cards">
+  <div class="card" data-choice="full-redink" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#fafafa;padding:20px;font-family:system-ui;">
+        <div style="display:flex;gap:16px;min-height:200px;">
+          <div style="width:200px;background:#fff;border-right:1px solid #eee;padding:24px;">
+            <div style="width:150px;height:40px;background:linear-gradient(135deg,#FF2442,#FF4D4F);border-radius:8px;margin-bottom:32px;"></div>
+            <div style="background:#FFF0F0;padding:12px 16px;border-radius:8px;color:#FF4D4F;font-weight:600;margin-bottom:8px;">Dashboard</div>
+            <div style="padding:12px 16px;border-radius:8px;color:#666;margin-bottom:8px;">Sources</div>
+            <div style="padding:12px 16px;border-radius:8px;color:#666;margin-bottom:8px;">Agents</div>
+            <div style="padding:12px 16px;border-radius:8px;color:#666;">Publishers</div>
+          </div>
+          <div style="flex:1;padding:32px;background:linear-gradient(135deg,#FAFAFA,#F4F5F7);">
+            <div style="font-size:28px;font-weight:800;margin-bottom:24px;">Dashboard</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+              <div style="background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <div style="font-size:12px;color:#999;margin-bottom:4px;">Sources</div>
+                <div style="font-size:24px;font-weight:700;">12</div>
+              </div>
+              <div style="background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <div style="font-size:12px;color:#999;margin-bottom:4px;">Tasks</div>
+                <div style="font-size:24px;font-weight:700;">48</div>
+              </div>
+              <div style="background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <div style="font-size:12px;color:#999;margin-bottom:4px;">Providers</div>
+                <div style="font-size:24px;font-weight:700;">3</div>
+              </div>
+              <div style="background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <div style="font-size:12px;color:#999;margin-bottom:4px;">Publishers</div>
+                <div style="font-size:24px;font-weight:700;">5</div>
+              </div>
+            </div>
+            <div style="background:#fff;padding:24px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+              <div style="font-weight:700;margin-bottom:16px;">Recent Activity</div>
+              <div style="padding:16px;background:#F9FAFB;border-radius:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                <div style="width:44px;height:44px;background:#FFF0F2;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#FF4D4F;">📥</div>
+                <div><div style="font-weight:600;">GitHub Sync Complete</div><div style="font-size:12px;color:#999;">2 minutes ago</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Full RedInk Style</h3>
+      <p>Complete sidebar navigation, soft red (#FF2442) primary color, Inter font, card-based layout with subtle shadows and hover animations</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="hybrid" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0f172a;padding:20px;font-family:system-ui;">
+        <div style="display:flex;gap:16px;min-height:200px;">
+          <div style="width:72px;background:#1e293b;border-radius:16px;padding:16px;">
+            <div style="width:40px;height:40px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:12px;margin-bottom:24px;"></div>
+            <div style="width:40px;height:40px;background:#334155;border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;">📊</div>
+            <div style="width:40px;height:40px;background:rgba(99,102,241,0.2);border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;color:#818cf8;">📥</div>
+            <div style="width:40px;height:40px;background:#334155;border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;">🤖</div>
+            <div style="width:40px;height:40px;background:#334155;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#94a3b8;">📤</div>
+          </div>
+          <div style="flex:1;padding:24px;">
+            <div style="font-size:24px;font-weight:700;color:#fff;margin-bottom:20px;">Dashboard</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+              <div style="background:#1e293b;padding:16px;border-radius:12px;">
+                <div style="font-size:11px;color:#64748b;margin-bottom:4px;">SOURCES</div>
+                <div style="font-size:22px;font-weight:700;color:#fff;">12</div>
+              </div>
+              <div style="background:#1e293b;padding:16px;border-radius:12px;">
+                <div style="font-size:11px;color:#64748b;margin-bottom:4px;">TASKS</div>
+                <div style="font-size:22px;font-weight:700;color:#fff;">48</div>
+              </div>
+              <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:16px;border-radius:12px;">
+                <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:4px;">PROVIDERS</div>
+                <div style="font-size:22px;font-weight:700;color:#fff;">3</div>
+              </div>
+              <div style="background:#1e293b;padding:16px;border-radius:12px;">
+                <div style="font-size:11px;color:#64748b;margin-bottom:4px;">PUBLISHERS</div>
+                <div style="font-size:22px;font-weight:700;color:#fff;">5</div>
+              </div>
+            </div>
+            <div style="background:#1e293b;padding:20px;border-radius:12px;">
+              <div style="font-weight:600;color:#fff;margin-bottom:12px;">Recent Activity</div>
+              <div style="padding:12px;background:#334155;border-radius:8px;color:#e2e8f0;">GitHub Sync Complete - 2m ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Dark Mode Hybrid</h3>
+      <p>Slate dark theme with indigo/violet accents, icon-only sidebar, modern dashboard with gradient stat cards</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="minimal" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#fff;padding:20px;font-family:system-ui;">
+        <div style="display:flex;gap:16px;min-height:200px;">
+          <div style="width:240px;background:#FAFAFA;border-right:1px solid #eee;padding:24px;">
+            <div style="font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:32px;">RunIt</div>
+            <div style="padding:12px 16px;border-radius:8px;background:#1a1a1a;color:#fff;font-weight:600;margin-bottom:8px;">Dashboard</div>
+            <div style="padding:12px 16px;border-radius:8px;color:#666;margin-bottom:8px;">Sources</div>
+            <div style="padding:12px 16px;border-radius:8px;color:#666;margin-bottom:8px;">Agents</div>
+            <div style="padding:12px 16px;border-radius:8px;color:#666;">Publishers</div>
+          </div>
+          <div style="flex:1;padding:32px;">
+            <div style="font-size:28px;font-weight:800;color:#1a1a1a;margin-bottom:24px;">Dashboard</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+              <div style="border:1px solid #eee;padding:16px;border-radius:4px;">
+                <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;">Sources</div>
+                <div style="font-size:24px;font-weight:700;margin-top:4px;">12</div>
+              </div>
+              <div style="border:1px solid #eee;padding:16px;border-radius:4px;">
+                <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;">Tasks</div>
+                <div style="font-size:24px;font-weight:700;margin-top:4px;">48</div>
+              </div>
+              <div style="border:1px solid #eee;padding:16px;border-radius:4px;">
+                <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;">Providers</div>
+                <div style="font-size:24px;font-weight:700;margin-top:4px;">3</div>
+              </div>
+              <div style="border:1px solid #eee;padding:16px;border-radius:4px;">
+                <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;">Publishers</div>
+                <div style="font-size:24px;font-weight:700;margin-top:4px;">5</div>
+              </div>
+            </div>
+            <div style="border:1px solid #eee;padding:24px;border-radius:4px;">
+              <div style="font-weight:700;margin-bottom:16px;">Recent Activity</div>
+              <div style="border-bottom:1px solid #f0f0f0;padding:12px 0;color:#333;">GitHub Sync Complete</div>
+              <div style="border-bottom:1px solid #f0f0f0;padding:12px 0;color:#666;font-size:14px;">2 minutes ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Minimal Black & White</h3>
+      <p>Clean black/white aesthetic, subtle borders instead of shadows, refined typography, modern minimalist approach</p>
+    </div>
+  </div>
+</div>
