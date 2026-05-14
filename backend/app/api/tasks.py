@@ -5,8 +5,9 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models.task import Task
-from app.schemas.task import TaskListResponse, TaskResponse
+from app.models.task import Task, TaskLog
+from app.schemas.task import TaskListResponse, TaskResponse, TaskLogResponse, TaskLogListResponse
+from app.models.content import Content
 
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
 
@@ -60,6 +61,87 @@ async def get_task(
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@router.get("/{task_id}/logs", response_model=TaskLogListResponse)
+async def get_task_logs(
+    task_id: str,
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(50, ge=1, le=200, description="Items per page"),
+    level: Optional[str] = Query(None, description="Filter by level (INFO, WARNING, ERROR)"),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get logs for a specific task."""
+    # Verify task exists
+    task_result = await db.execute(select(Task).where(Task.id == task_id))
+    if not task_result.scalar_one_or_none():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # Build query
+    base_query = select(TaskLog).where(TaskLog.task_id == task_id)
+    count_query = select(func.count()).select_from(TaskLog).where(TaskLog.task_id == task_id)
+
+    if level:
+        base_query = base_query.where(TaskLog.level == level)
+        count_query = count_query.where(TaskLog.level == level)
+
+    # Get total count
+    count_result = await db.execute(count_query)
+    total = count_result.scalar()
+
+    # Apply pagination
+    offset = (page - 1) * page_size
+    base_query = base_query.order_by(TaskLog.created_at.asc()).offset(offset).limit(page_size)
+
+    result = await db.execute(base_query)
+    logs = result.scalars().all()
+
+    return TaskLogListResponse(
+        items=logs,
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@router.get("/{task_id}/contents")
+async def get_task_contents(
+    task_id: str,
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get contents associated with a specific task."""
+    # Verify task exists
+    task_result = await db.execute(select(Task).where(Task.id == task_id))
+    if not task_result.scalar_one_or_none():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # Count total
+    count_query = select(func.count()).select_from(Content).where(Content.task_id == task_id)
+    count_result = await db.execute(count_query)
+    total = count_result.scalar()
+
+    # Get paginated contents
+    offset = (page - 1) * page_size
+    query = (
+        select(Content)
+        .where(Content.task_id == task_id)
+        .order_by(Content.created_at.desc())
+        .offset(offset)
+        .limit(page_size)
+    )
+    result = await db.execute(query)
+    contents = result.scalars().all()
+
+    return {
+        "items": contents,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
 
 
 @router.post("/{task_id}/retry")
