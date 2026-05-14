@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 
 interface SourceFormProps {
+  sourceId?: string;
   initialData?: {
     name: string;
     type: string;
@@ -19,7 +20,7 @@ interface SourceFormProps {
   onCancel?: () => void;
 }
 
-export function SourceForm({ initialData, onSuccess, onCancel }: SourceFormProps) {
+export function SourceForm({ sourceId, initialData, onSuccess, onCancel }: SourceFormProps) {
   const [form, setForm] = useState({
     name: initialData?.name || "",
     type: initialData?.type || "rss",
@@ -66,9 +67,8 @@ export function SourceForm({ initialData, onSuccess, onCancel }: SourceFormProps
         agent_id: form.agent_id || null,
       };
 
-      if (initialData) {
-        // Update - would need source ID from parent
-        // await api.sources.update(id, data);
+      if (sourceId) {
+        await api.sources.update(sourceId, data);
       } else {
         await api.sources.create(data);
       }
