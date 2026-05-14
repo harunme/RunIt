@@ -15,13 +15,16 @@ const NAV_ITEMS = [
   {
     group: "Ingest",
     items: [
-      { name: "Content", href: "/content", icon: FileText },
       { name: "Sources", href: "/sources", icon: Rss },
+      { name: "Content", href: "/content", icon: FileText },
     ],
   },
   {
     group: "Process",
-    items: [{ name: "Agents", href: "/agents", icon: Brain }],
+    items: [
+      { name: "Agents", href: "/agents", icon: Brain },
+      { name: "Articles", href: "/articles", icon: FileText },
+    ],
   },
   {
     group: "Publish",
