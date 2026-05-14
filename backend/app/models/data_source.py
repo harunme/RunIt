@@ -41,6 +41,10 @@ class DataSource(Base):
         "Task",
         back_populates="data_source"
     )
+    contents: Mapped[list["Content"]] = relationship(
+        "Content",
+        back_populates="source"
+    )
 
     def __repr__(self) -> str:
         return f"<DataSource(id={self.id}, name={self.name}, type={self.type})>"

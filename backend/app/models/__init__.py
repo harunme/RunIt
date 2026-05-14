@@ -5,6 +5,7 @@ from app.models.task import Task
 from app.models.publisher import Publisher
 from app.models.published_item import PublishedItem
 from app.models.user import User
+from app.models.content import Content
 
 __all__ = [
     "LLMProvider",
@@ -14,4 +15,5 @@ __all__ = [
     "Publisher",
     "PublishedItem",
     "User",
+    "Content",
 ]

@@ -44,6 +44,10 @@ class Task(Base):
         "DataSource",
         back_populates="tasks"
     )
+    contents: Mapped[list["Content"]] = relationship(
+        "Content",
+        back_populates="task"
+    )
     published_items: Mapped[List["PublishedItem"]] = relationship(
         "PublishedItem",
         back_populates="task"
