@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional, List
 
-from sqlalchemy import String, Text
+from sqlalchemy import String, Boolean, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -20,6 +20,7 @@ class Agent(Base):
     source_type: Mapped[str] = mapped_column(String(50), nullable=False)  # github, twitter, rss
     llm_provider_id: Mapped[Optional[str]] = mapped_column(
         String(36),
+        ForeignKey("llm_providers.id"),
         nullable=True,
         index=True
     )

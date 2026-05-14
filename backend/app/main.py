@@ -4,6 +4,11 @@ from contextlib import asynccontextmanager
 
 from app.database import init_db
 from app.config import get_settings
+from app.api.llm import router as llm_router
+from app.api.agents import router as agents_router
+from app.api.sources import router as sources_router
+from app.api.tasks import router as tasks_router
+from app.api.publishers import router as publishers_router
 
 
 @asynccontextmanager
@@ -31,6 +36,13 @@ app.add_middleware(
     allow_methods=["*"] if cors_origins else ["GET", "POST", "OPTIONS"],
     allow_headers=["*"] if cors_origins else ["Authorization", "Content-Type"],
 )
+
+# Include API routers
+app.include_router(llm_router)
+app.include_router(agents_router)
+app.include_router(sources_router)
+app.include_router(tasks_router)
+app.include_router(publishers_router)
 
 
 @app.get("/health")

@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import String, DateTime
+from sqlalchemy import String, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -18,11 +18,13 @@ class PublishedItem(Base):
     )
     task_id: Mapped[str] = mapped_column(
         String(36),
+        ForeignKey("tasks.id"),
         nullable=False,
         index=True
     )
     publisher_id: Mapped[str] = mapped_column(
         String(36),
+        ForeignKey("publishers.id"),
         nullable=False,
         index=True
     )

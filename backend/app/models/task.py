@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional, List
 
-from sqlalchemy import String, Text, DateTime
+from sqlalchemy import String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -18,6 +18,7 @@ class Task(Base):
     )
     source_id: Mapped[str] = mapped_column(
         String(36),
+        ForeignKey("data_sources.id"),
         nullable=False,
         index=True
     )
