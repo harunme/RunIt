@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { api, Task } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { api, Task, auth } from "@/lib/api";
 import { TaskTable } from "@/components/tasks/TaskTable";
 import { TaskDetailModal } from "@/components/tasks/TaskDetailModal";
 
 export default function TasksPage() {
+  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -14,8 +16,20 @@ export default function TasksPage() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
+    if (!auth.isLoggedIn()) {
+      router.push("/login");
+      return;
+    }
     fetchTasks();
-  }, [page, statusFilter]);
+  }, [page, statusFilter, router]);
+
+  if (!auth.isLoggedIn()) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   const fetchTasks = async () => {
     setLoading(true);
