@@ -9,12 +9,27 @@ from app.api.agents import router as agents_router
 from app.api.sources import router as sources_router
 from app.api.tasks import router as tasks_router
 from app.api.publishers import router as publishers_router
+from app.worker.scheduler import Scheduler
+
+
+settings = get_settings()
+
+scheduler: Scheduler | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global scheduler
     await init_db()
+
+    if settings.scheduler_enabled:
+        scheduler = Scheduler()
+        scheduler.start()
+
     yield
+
+    if scheduler:
+        scheduler.stop()
 
 
 app = FastAPI(
