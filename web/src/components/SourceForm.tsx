@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 
 interface SourceFormProps {
   initialData?: {
@@ -13,11 +15,11 @@ interface SourceFormProps {
     enabled: boolean;
     agent_id?: string;
   };
-  isEdit?: boolean;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export function SourceForm({ initialData, isEdit }: SourceFormProps) {
-  const router = useRouter();
+export function SourceForm({ initialData, onSuccess, onCancel }: SourceFormProps) {
   const [form, setForm] = useState({
     name: initialData?.name || "",
     type: initialData?.type || "rss",
@@ -26,7 +28,7 @@ export function SourceForm({ initialData, isEdit }: SourceFormProps) {
     token: initialData?.config?.token || "",
     bearer_token: initialData?.config?.bearer_token || "",
     max_items: initialData?.config?.max_items || 20,
-    schedule: initialData?.schedule || "0 * * * *",
+    schedule: initialData?.schedule || "hourly",
     enabled: initialData?.enabled ?? true,
     agent_id: initialData?.agent_id || "",
   });
@@ -64,13 +66,16 @@ export function SourceForm({ initialData, isEdit }: SourceFormProps) {
         agent_id: form.agent_id || null,
       };
 
-      if (isEdit) {
-        // Update - need source ID
+      if (initialData) {
+        // Update - would need source ID from parent
         // await api.sources.update(id, data);
       } else {
         await api.sources.create(data);
       }
-      router.push("/sources");
+
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (e: any) {
       setError(e.message || "Failed to save");
     } finally {
@@ -78,84 +83,129 @@ export function SourceForm({ initialData, isEdit }: SourceFormProps) {
     }
   };
 
+  const typeOptions = [
+    { value: "rss", label: "RSS Feed" },
+    { value: "github", label: "GitHub Stars" },
+    { value: "twitter", label: "Twitter" },
+  ];
+
+  const scheduleOptions = [
+    { value: "*/15 * * * *", label: "Every 15 minutes" },
+    { value: "*/30 * * * *", label: "Every 30 minutes" },
+    { value: "hourly", label: "Every hour" },
+    { value: "daily", label: "Once a day" },
+    { value: "weekly", label: "Once a week" },
+  ];
+
+  const agentOptions = [
+    { value: "", label: "None" },
+    ...agents.map((agent) => ({ value: agent.id, label: agent.name })),
+  ];
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow p-6">
-      {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Name</label>
-        <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" required />
-      </div>
+      <Input
+        label="Name"
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+        placeholder="My RSS Feed"
+        required
+      />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Type</label>
-        <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
-          <option value="rss">RSS Feed</option>
-          <option value="github">GitHub Stars</option>
-          <option value="twitter">Twitter</option>
-        </select>
-      </div>
+      <Select
+        label="Type"
+        value={form.type}
+        onChange={(e) => setForm({ ...form, type: e.target.value })}
+        options={typeOptions}
+      />
 
       {/* RSS fields */}
       {form.type === "rss" && (
         <>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">URL</label>
-            <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" required />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Max Items</label>
-            <input type="number" value={form.max_items} onChange={(e) => setForm({ ...form, max_items: parseInt(e.target.value) })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" min="1" max="100" />
-          </div>
+          <Input
+            label="URL"
+            type="url"
+            value={form.url}
+            onChange={(e) => setForm({ ...form, url: e.target.value })}
+            placeholder="https://example.com/feed.xml"
+            required
+          />
+          <Input
+            label="Max Items"
+            type="number"
+            value={form.max_items}
+            onChange={(e) => setForm({ ...form, max_items: parseInt(e.target.value) || 20 })}
+            min={1}
+            max={100}
+          />
         </>
       )}
 
       {/* GitHub fields */}
       {form.type === "github" && (
         <>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">GitHub Username</label>
-            <input type="text" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" required />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Personal Access Token</label>
-            <input type="password" value={form.token} onChange={(e) => setForm({ ...form, token: e.target.value })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" required />
-          </div>
+          <Input
+            label="GitHub Username"
+            value={form.username}
+            onChange={(e) => setForm({ ...form, username: e.target.value })}
+            placeholder="username"
+            required
+          />
+          <Input
+            label="Personal Access Token"
+            type="password"
+            value={form.token}
+            onChange={(e) => setForm({ ...form, token: e.target.value })}
+            placeholder="ghp_..."
+            required
+          />
         </>
       )}
 
       {/* Twitter fields */}
       {form.type === "twitter" && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Bearer Token</label>
-          <input type="password" value={form.bearer_token} onChange={(e) => setForm({ ...form, bearer_token: e.target.value })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" required />
-        </div>
+        <Input
+          label="Bearer Token"
+          type="password"
+          value={form.bearer_token}
+          onChange={(e) => setForm({ ...form, bearer_token: e.target.value })}
+          placeholder="AAAAAAAAAAAAAAAA..."
+          required
+        />
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Schedule (Cron)</label>
-        <input type="text" value={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.value })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" placeholder="0 * * * *" />
-        <p className="text-xs text-gray-500 mt-1">e.g., &quot;0 * * * *&quot; = every hour</p>
-      </div>
+      <Select
+        label="Schedule"
+        value={form.schedule}
+        onChange={(e) => setForm({ ...form, schedule: e.target.value })}
+        options={scheduleOptions}
+      />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Agent</label>
-        <select value={form.agent_id} onChange={(e) => setForm({ ...form, agent_id: e.target.value })} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
-          <option value="">None</option>
-          {agents.map((agent) => (
-            <option key={agent.id} value={agent.id}>{agent.name}</option>
-          ))}
-        </select>
-      </div>
+      {agents.length > 0 && (
+        <Select
+          label="Agent"
+          value={form.agent_id}
+          onChange={(e) => setForm({ ...form, agent_id: e.target.value })}
+          options={agentOptions}
+        />
+      )}
 
-      <div className="flex items-center gap-2">
-        <input type="checkbox" id="enabled" checked={form.enabled} onChange={(e) => setForm({ ...form, enabled: e.target.checked })} className="rounded" />
-        <label htmlFor="enabled" className="text-sm font-medium text-gray-700">Enabled</label>
+      <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
+        {onCancel && (
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+        <Button type="submit" loading={loading} className="flex-1">
+          {initialData ? "Update" : "Create"} Source
+        </Button>
       </div>
-
-      <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50">
-        {loading ? "Saving..." : isEdit ? "Update" : "Create"}
-      </button>
     </form>
   );
 }

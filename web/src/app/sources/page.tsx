@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { api } from "@/lib/api";
+import { AppShell } from "@/components/layout/AppShell";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ListItemSkeleton } from "@/components/ui/LoadingSkeleton";
+import { ListItem } from "@/components/features/ListItem";
+import { SourceForm } from "@/components/SourceForm";
+import { Drawer } from "@/components/ui/Drawer";
 import { AuthCheck } from "@/components/AuthCheck";
-import { ArrowLeft, Plus, Trash2, Rss, Github, Twitter } from "lucide-react";
+import { Rss, Github, Twitter, Plus, Database } from "lucide-react";
 
 interface Source {
   id: string;
@@ -19,19 +28,23 @@ interface Source {
 export default function SourcesPage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const data = await api.sources.list();
-        setSources(data);
-      } catch (e) {
-        console.error("Failed to load:", e);
-      }
+    loadSources();
+  }, []);
+
+  const loadSources = async () => {
+    try {
+      setLoading(true);
+      const data = await api.sources.list();
+      setSources(data);
+    } catch (e) {
+      console.error("Failed to load sources:", e);
+    } finally {
       setLoading(false);
     }
-    load();
-  }, []);
+  };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -45,76 +58,113 @@ export default function SourcesPage() {
     }
   };
 
+  const handleSourceCreated = () => {
+    setDrawerOpen(false);
+    loadSources();
+  };
+
   const getIcon = (type: string) => {
     switch (type) {
-      case "github": return <Github className="w-5 h-5" />;
-      case "twitter": return <Twitter className="w-5 h-5" />;
-      default: return <Rss className="w-5 h-5" />;
+      case "github":
+        return Github;
+      case "twitter":
+        return Twitter;
+      default:
+        return Rss;
     }
+  };
+
+  const getIconColor = (type: string) => {
+    switch (type) {
+      case "github":
+        return "text-zinc-900 dark:text-zinc-100";
+      case "twitter":
+        return "text-sky-500";
+      default:
+        return "text-orange-500";
+    }
+  };
+
+  const getSubtitle = (source: Source) => {
+    const parts = [];
+    parts.push(source.type.charAt(0).toUpperCase() + source.type.slice(1));
+    parts.push(source.schedule);
+    if (source.config?.url) {
+      parts.push(source.config.url);
+    }
+    return parts.join(" | ");
   };
 
   return (
     <AuthCheck>
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-gray-600 hover:text-gray-900">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-2xl font-bold">Data Sources</h1>
-          </div>
-          <Link href="/sources/new" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            <Plus className="w-4 h-4" />
-            Add Source
-          </Link>
-        </div>
+      <AppShell>
+        <PageHeader
+          title="Sources"
+          subtitle="Configure data sources for your feeds"
+          actions={
+            <Button onClick={() => setDrawerOpen(true)} size="md">
+              <Plus className="w-4 h-4" />
+              Add Source
+            </Button>
+          }
+        />
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
-          </div>
+          <Card padding="none">
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {[1, 2, 3].map((i) => (
+                <ListItemSkeleton key={i} avatar={true} lines={2} />
+              ))}
+            </div>
+          </Card>
         ) : sources.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
-            No data sources configured. Click &quot;Add Source&quot; to create one.
-          </div>
+          <EmptyState
+            icon={<Database className="w-12 h-12" />}
+            title="No data sources"
+            description="Configure your first data source to start aggregating content from RSS feeds, GitHub, or Twitter."
+            action={{
+              label: "Add Source",
+              onClick: () => setDrawerOpen(true),
+            }}
+          />
         ) : (
-          <div className="space-y-4">
-            {sources.map((source) => (
-              <Link key={source.id} href={`/sources/${source.id}`} className="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4">
-                    <div className={`p-2 rounded-lg ${source.enabled ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-400"}`}>
-                      {getIcon(source.type)}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{source.name}</h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Type: {source.type} • Schedule: {source.schedule}
-                      </p>
-                      {source.config?.url && (
-                        <p className="text-sm text-gray-400 mt-1 truncate max-w-md">{source.config.url}</p>
-                      )}
-                      {source.last_run_at && (
-                        <p className="text-xs text-gray-400 mt-1">
-                          Last run: {new Date(source.last_run_at).toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={(e) => handleDelete(e, source.id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                    <span className={`px-2 py-1 text-xs rounded-full ${source.enabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
-                      {source.enabled ? "Active" : "Disabled"}
-                    </span>
-                  </div>
+          <Card padding="none">
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {sources.map((source) => (
+                <div key={source.id} className="relative group">
+                  <ListItem
+                    icon={getIcon(source.type)}
+                    iconColor={getIconColor(source.type)}
+                    title={source.name}
+                    subtitle={getSubtitle(source)}
+                    badge={source.enabled ? "Active" : "Disabled"}
+                    href={`/sources/${source.id}`}
+                  />
+                  <button
+                    onClick={(e) => handleDelete(e, source.id)}
+                    className="absolute right-12 top-1/2 -translate-y-1/2 p-2 text-red-600 opacity-0 group-hover:opacity-100 hover:bg-red-50 rounded-lg transition-all"
+                    aria-label="Delete source"
+                  >
+                    Delete
+                  </button>
                 </div>
-              </Link>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         )}
-      </main>
+
+        <Drawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          title="Add Source"
+          width={480}
+        >
+          <SourceForm
+            onSuccess={handleSourceCreated}
+            onCancel={() => setDrawerOpen(false)}
+          />
+        </Drawer>
+      </AppShell>
     </AuthCheck>
   );
 }
