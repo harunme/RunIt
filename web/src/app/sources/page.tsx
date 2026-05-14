@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { AuthCheck } from "@/components/AuthCheck";
+import { ArrowLeft, Plus, Trash2, Rss, Github, Twitter } from "lucide-react";
 
 interface Source {
   id: string;
