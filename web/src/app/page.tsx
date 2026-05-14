@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { auth, api } from "@/lib/api";
-import { Rss, Brain, Send, Settings, FileText } from "lucide-react";
+import { Rss, Brain, Send, Settings, FileText, ListTodo } from "lucide-react";
 import { AuthCheck } from "@/components/AuthCheck";
 
 export default function Dashboard() {
@@ -74,6 +74,7 @@ export default function Dashboard() {
           <ModuleCard href="/agents" title="Agents" icon={<Brain className="w-6 h-6" />} desc="AI processing strategies" />
           <ModuleCard href="/publishers" title="Publishers" icon={<Send className="w-6 h-6" />} desc="Social media platforms" />
           <ModuleCard href="/settings" title="Settings" icon={<Settings className="w-6 h-6" />} desc="System configuration" />
+          <ModuleCard href="/tasks" title="Tasks" icon={<ListTodo className="w-6 h-6" />} desc="Task execution logs" />
         </div>
       </main>
     </AuthCheck>
