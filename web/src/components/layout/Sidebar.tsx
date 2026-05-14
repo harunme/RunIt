@@ -16,7 +16,7 @@ import {
 const NAV_ITEMS = [
   {
     group: "Overview",
-    items: [{ name: "Dashboard", href: "/dashboard", icon: LayoutDashboard }],
+    items: [{ name: "Dashboard", href: "/", icon: LayoutDashboard }],
   },
   {
     group: "Ingest",
