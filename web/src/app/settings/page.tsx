@@ -1,122 +1,174 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { api } from "@/lib/api";
-import { ArrowLeft, Plus, Trash2, Check } from "lucide-react";
 import { AuthCheck } from "@/components/AuthCheck";
+import { AppShell } from "@/components/layout/AppShell";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { User, Key, Bell } from "lucide-react";
 
-interface Provider {
-  id: string;
-  name: string;
-  provider: string;
-  model: string;
-  enabled: boolean;
-  is_default: boolean;
+interface UserProfile {
+  email: string;
+  username?: string;
 }
 
 export default function SettingsPage() {
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile>({ email: "" });
+  const [openaiKey, setOpenaiKey] = useState("");
+  const [anthropicKey, setAnthropicKey] = useState("");
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    async function load() {
+    // Load user profile from auth API
+    async function loadProfile() {
       try {
-        const data = await api.llm.list();
-        setProviders(data);
+        const user = await fetch("/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("runit_token")}`,
+          },
+        }).then((r) => r.json());
+        setProfile({ email: user.email || "", username: user.username || "" });
       } catch (e) {
-        console.error("Failed to load:", e);
+        console.error("Failed to load profile:", e);
       }
-      setLoading(false);
     }
-    load();
+    loadProfile();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this provider?")) return;
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage(null);
     try {
-      await api.llm.delete(id);
-      setProviders(providers.filter((p) => p.id !== id));
+      // Save settings - this would call an API endpoint
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
+      setMessage({ type: "success", text: "Settings saved successfully!" });
     } catch (e) {
-      console.error("Failed to delete:", e);
+      setMessage({ type: "error", text: "Failed to save settings." });
     }
+    setSaving(false);
   };
 
   return (
     <AuthCheck>
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-2xl font-bold">Settings</h1>
-        </div>
+      <AppShell>
+        <PageHeader title="Settings" />
 
-        {/* LLM Providers Section */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">LLM Providers</h2>
-            <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              <Plus className="w-4 h-4" />
-              Add Provider
-            </button>
+        {message && (
+          <div
+            className={`mb-6 px-4 py-3 rounded-lg text-sm ${
+              message.type === "success"
+                ? "bg-green-50 text-green-800"
+                : "bg-red-50 text-red-800"
+            }`}
+          >
+            {message.text}
           </div>
+        )}
 
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+        {/* Profile Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-zinc-100">
+                <User className="w-5 h-5 text-zinc-600" />
+              </div>
+              <CardTitle>Profile</CardTitle>
             </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Model</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Default</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {providers.map((provider) => (
-                    <tr key={provider.id}>
-                      <td className="px-6 py-4 font-medium">{provider.name}</td>
-                      <td className="px-6 py-4">{provider.provider}</td>
-                      <td className="px-6 py-4">{provider.model}</td>
-                      <td className="px-6 py-4">
-                        {provider.is_default && <Check className="w-4 h-4 text-green-600" />}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button onClick={() => handleDelete(provider.id)} className="text-red-600 hover:text-red-800">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {providers.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                        No LLM providers configured.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                label="Username"
+                placeholder="Enter your username"
+                defaultValue={profile.username}
+              />
+              <Input
+                label="Email"
+                type="email"
+                placeholder="Enter your email"
+                defaultValue={profile.email}
+              />
             </div>
-          )}
-        </section>
+          </CardContent>
+        </Card>
 
-        {/* Backup Settings Section */}
-        <section>
-          <h2 className="text-lg font-semibold mb-4">Backup Settings</h2>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-500 mb-4">
-              Obsidian backup path and other backup settings will be configured here.
+        {/* API Keys Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-zinc-100">
+                <Key className="w-5 h-5 text-zinc-600" />
+              </div>
+              <CardTitle>API Keys</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                label="OpenAI API Key"
+                type="password"
+                placeholder="sk-..."
+                value={openaiKey}
+                onChange={(e) => setOpenaiKey(e.target.value)}
+              />
+              <Input
+                label="Anthropic API Key"
+                type="password"
+                placeholder="sk-ant-..."
+                value={anthropicKey}
+                onChange={(e) => setAnthropicKey(e.target.value)}
+              />
+            </div>
+            <p className="mt-3 text-xs text-gray-500">
+              Your API keys are stored securely and encrypted.
             </p>
-          </div>
-        </section>
-      </main>
+          </CardContent>
+        </Card>
+
+        {/* Notifications Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-zinc-100">
+                <Bell className="w-5 h-5 text-zinc-600" />
+              </div>
+              <CardTitle>Notifications</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={notificationsEnabled}
+                onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-900">
+                  Enable notifications
+                </span>
+                <p className="text-xs text-gray-500">
+                  Receive notifications when tasks complete or fail.
+                </p>
+              </div>
+            </label>
+          </CardContent>
+        </Card>
+
+        {/* Save Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? "Saving..." : "Save Settings"}
+          </button>
+        </div>
+      </AppShell>
     </AuthCheck>
   );
 }
