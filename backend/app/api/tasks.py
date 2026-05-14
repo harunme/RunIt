@@ -18,9 +18,10 @@ async def list_tasks(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     status: Optional[str] = Query(None, description="Filter by status"),
+    source_id: Optional[str] = Query(None, description="Filter by source ID"),
     db: AsyncSession = Depends(get_db)
 ):
-    """List tasks with pagination and optional status filter."""
+    """List tasks with pagination and optional status/source filter."""
     # Build base query with eager loading of data_source
     base_query = select(Task).options(selectinload(Task.data_source))
     count_query = select(func.count()).select_from(Task)
@@ -28,6 +29,10 @@ async def list_tasks(
     if status:
         base_query = base_query.where(Task.status == status)
         count_query = count_query.where(Task.status == status)
+
+    if source_id:
+        base_query = base_query.where(Task.source_id == source_id)
+        count_query = count_query.where(Task.source_id == source_id)
 
     # Get total count
     count_result = await db.execute(count_query)
