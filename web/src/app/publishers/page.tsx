@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { api } from "@/lib/api";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { Send } from "lucide-react";
 import { AuthCheck } from "@/components/AuthCheck";
+import { AppShell } from "@/components/layout/AppShell";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ListItemSkeleton } from "@/components/ui/LoadingSkeleton";
+import { ListItem } from "@/components/features/ListItem";
 
 interface Publisher {
   id: string;
@@ -34,7 +39,7 @@ export default function PublishersPage() {
     if (!confirm("Delete this publisher?")) return;
     try {
       await api.publishers.delete(id);
-      setPublishers(publishers.filter((p) => p.id !== id));
+      setPublishers((prev) => prev.filter((p) => p.id !== id));
     } catch (e) {
       console.error("Failed to delete:", e);
     }
@@ -42,51 +47,45 @@ export default function PublishersPage() {
 
   return (
     <AuthCheck>
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-gray-600 hover:text-gray-900">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-2xl font-bold">Publishers</h1>
-          </div>
-          <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            <Plus className="w-4 h-4" />
-            Add Publisher
-          </button>
-        </div>
+      <AppShell>
+        <PageHeader
+          title="Publishers"
+          actions={
+            <Button size="sm" disabled>
+              <Send className="w-4 h-4" />
+              Add Publisher
+            </Button>
+          }
+        />
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+          <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+            {[1, 2, 3].map((i) => (
+              <ListItemSkeleton key={i} avatar={false} lines={1} />
+            ))}
           </div>
         ) : publishers.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
-            No publishers configured. Click &quot;Add Publisher&quot; to add a social media platform.
-          </div>
+          <EmptyState
+            icon={<Send className="w-10 h-10" />}
+            title="No publishers configured"
+            description="Publishers are social media platforms where content can be automatically shared."
+          />
         ) : (
-          <div className="space-y-4">
+          <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
             {publishers.map((pub) => (
-              <div key={pub.id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold">{pub.name}</h3>
-                    <p className="text-sm text-gray-500">{pub.type}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => handleDelete(pub.id)} className="text-red-600 hover:bg-red-50 p-2 rounded">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                    <span className={`px-2 py-1 text-xs rounded-full ${pub.enabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
-                      {pub.enabled ? "Active" : "Disabled"}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <ListItem
+                key={pub.id}
+                icon={Send}
+                iconColor="text-blue-600"
+                title={pub.name}
+                subtitle={pub.type}
+                badge={pub.enabled ? "Active" : "Disabled"}
+                onClick={() => handleDelete(pub.id)}
+              />
             ))}
           </div>
         )}
-      </main>
+      </AppShell>
     </AuthCheck>
   );
 }
