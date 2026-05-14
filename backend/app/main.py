@@ -10,6 +10,7 @@ from app.api.sources import router as sources_router
 from app.api.tasks import router as tasks_router
 from app.api.publishers import router as publishers_router
 from app.api.auth import router as auth_router
+from app.api.content import router as content_router
 from app.worker.scheduler import Scheduler
 
 # Load settings at module level for use throughout the app
@@ -55,6 +56,7 @@ app.include_router(sources_router)
 app.include_router(tasks_router)
 app.include_router(publishers_router)
 app.include_router(auth_router)
+app.include_router(content_router)
 
 
 @app.get("/health")
