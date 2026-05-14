@@ -1,79 +1,102 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
-import { Activity, Database, Rss, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { auth, api } from "@/lib/api";
+import { Rss, Brain, Send, Settings, FileText } from "lucide-react";
+import { AuthCheck } from "@/components/AuthCheck";
 
 export default function Dashboard() {
+  const router = useRouter();
   const [stats, setStats] = useState({
     sources: 0,
     tasks: 0,
     providers: 0,
     publishers: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth.isLoggedIn()) {
+      router.push("/login");
+      return;
+    }
+
     async function loadStats() {
       try {
         const [sources, tasks, providers, publishers] = await Promise.all([
-          api.sources.list(),
-          api.tasks.list({ page_size: 1 }),
-          api.llm.list(),
-          api.publishers.list(),
+          api.sources.list().catch(() => []),
+          api.tasks.list({ page_size: 1 }).catch(() => ({ total: 0 })),
+          api.llm.list().catch(() => []),
+          api.publishers.list().catch(() => []),
         ]);
         setStats({
-          sources: sources.length,
-          tasks: tasks.total,
-          providers: providers.length,
-          publishers: publishers.length,
+          sources: Array.isArray(sources) ? sources.length : 0,
+          tasks: tasks?.total || 0,
+          providers: Array.isArray(providers) ? providers.length : 0,
+          publishers: Array.isArray(publishers) ? publishers.length : 0,
         });
       } catch (e) {
         console.error("Failed to load stats:", e);
+      } finally {
+        setLoading(false);
       }
     }
     loadStats();
-  }, []);
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8">RunIt Dashboard</h1>
+    <AuthCheck>
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Data Sources"
-          value={stats.sources}
-          icon={<Rss className="w-6 h-6" />}
-        />
-        <StatCard
-          title="Tasks"
-          value={stats.tasks}
-          icon={<Activity className="w-6 h-6" />}
-        />
-        <StatCard
-          title="LLM Providers"
-          value={stats.providers}
-          icon={<Database className="w-6 h-6" />}
-        />
-        <StatCard
-          title="Publishers"
-          value={stats.publishers}
-          icon={<Settings className="w-6 h-6" />}
-        />
-      </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <StatCard title="Sources" value={stats.sources} />
+          <StatCard title="Tasks" value={stats.tasks} />
+          <StatCard title="LLM Providers" value={stats.providers} />
+          <StatCard title="Publishers" value={stats.publishers} />
+        </div>
+
+        {/* Module Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+          <ModuleCard href="/content" title="Content" icon={<FileText className="w-6 h-6" />} desc="View collected content" />
+          <ModuleCard href="/sources" title="Sources" icon={<Rss className="w-6 h-6" />} desc="Configure data sources" />
+          <ModuleCard href="/agents" title="Agents" icon={<Brain className="w-6 h-6" />} desc="AI processing strategies" />
+          <ModuleCard href="/publishers" title="Publishers" icon={<Send className="w-6 h-6" />} desc="Social media platforms" />
+          <ModuleCard href="/settings" title="Settings" icon={<Settings className="w-6 h-6" />} desc="System configuration" />
+        </div>
+      </main>
+    </AuthCheck>
+  );
+}
+
+function StatCard({ title, value }: { title: string; value: number }) {
+  return (
+    <div className="bg-white rounded-lg shadow p-4">
+      <p className="text-sm text-gray-500">{title}</p>
+      <p className="text-2xl font-bold">{value}</p>
     </div>
   );
 }
 
-function StatCard({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) {
+function ModuleCard({ href, title, icon, desc }: { href: string; title: string; icon: React.ReactNode; desc: string }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-500 text-sm">{title}</p>
-          <p className="text-3xl font-bold">{value}</p>
-        </div>
-        <div className="text-gray-400">{icon}</div>
+    <Link href={href}>
+      <div className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow h-full">
+        <div className="text-blue-600 mb-2">{icon}</div>
+        <h3 className="font-semibold">{title}</h3>
+        <p className="text-sm text-gray-500">{desc}</p>
       </div>
-    </div>
+    </Link>
   );
 }
