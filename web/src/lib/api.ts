@@ -105,6 +105,7 @@ export const api = {
   },
   sources: {
     list: () => fetchAPI("/api/sources"),
+    get: (id: string) => fetchAPI(`/api/sources/${id}`),
     create: (data: any) => fetchAPI("/api/sources", { method: "POST", body: JSON.stringify(data) }),
     update: (id: string, data: any) => fetchAPI(`/api/sources/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: string) => fetchAPI(`/api/sources/${id}`, { method: "DELETE" }),
