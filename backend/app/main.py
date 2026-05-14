@@ -9,9 +9,10 @@ from app.api.agents import router as agents_router
 from app.api.sources import router as sources_router
 from app.api.tasks import router as tasks_router
 from app.api.publishers import router as publishers_router
+from app.api.auth import router as auth_router
 from app.worker.scheduler import Scheduler
 
-
+# Load settings at module level for use throughout the app
 settings = get_settings()
 
 scheduler: Scheduler | None = None
@@ -38,18 +39,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware: origins are configurable via CORS_ORIGINS env var
-# When empty, no origins are allowed (most restrictive)
-# When set to comma-separated list, only those origins are allowed
-# Note: allow_credentials is only used when origins are explicitly set
-settings = get_settings()
-cors_origins = settings.cors_origins_list
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=len(cors_origins) > 0,
-    allow_methods=["*"] if cors_origins else ["GET", "POST", "OPTIONS"],
-    allow_headers=["*"] if cors_origins else ["Authorization", "Content-Type"],
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=len(settings.cors_origins_list) > 0,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include API routers
@@ -58,6 +54,7 @@ app.include_router(agents_router)
 app.include_router(sources_router)
 app.include_router(tasks_router)
 app.include_router(publishers_router)
+app.include_router(auth_router)
 
 
 @app.get("/health")
