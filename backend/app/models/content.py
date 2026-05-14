@@ -36,7 +36,7 @@ class Content(Base):
     url: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
     author: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     published_at: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    metadata: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON
+    extra_metadata: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON stored as text
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
