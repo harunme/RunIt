@@ -11,7 +11,7 @@ export default function ArticlesPage() {
     <AppShell>
       <PageHeader
         title="Articles"
-        description="Processed articles from your content pipeline"
+        subtitle="Processed articles from your content pipeline"
         actions={
           <Button size="sm">
             <Plus className="w-4 h-4" />

@@ -12,7 +12,7 @@ import { FileText } from "lucide-react";
 import { ContentDetailModal } from "@/components/content/ContentDetailModal";
 import { OriginalContentModal } from "@/components/content/OriginalContentModal";
 
-interface Content {
+export interface Content {
   id: string;
   source_id: string;
   title: string;
