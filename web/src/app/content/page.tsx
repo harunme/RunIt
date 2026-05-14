@@ -9,6 +9,8 @@ import { ListItem } from "@/components/features/ListItem";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ListItemSkeleton } from "@/components/ui/LoadingSkeleton";
 import { FileText } from "lucide-react";
+import { ContentDetailModal } from "@/components/content/ContentDetailModal";
+import { OriginalContentModal } from "@/components/content/OriginalContentModal";
 
 interface Content {
   id: string;
@@ -24,6 +26,8 @@ export default function ContentPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [selectedContent, setSelectedContent] = useState<Content | null>(null);
+  const [showOriginalModal, setShowOriginalModal] = useState(false);
 
   useEffect(() => {
     async function loadContent() {
@@ -42,10 +46,6 @@ export default function ContentPage() {
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString();
-  };
-
-  const truncate = (text: string, max: number = 80) => {
-    return text.length > max ? text.substring(0, max) + "..." : text;
   };
 
   return (
@@ -71,10 +71,11 @@ export default function ContentPage() {
               <ListItem
                 key={item.id}
                 icon={FileText}
-                title={truncate(item.title, 60)}
-                subtitle={`${truncate(item.content.replace(/<[^>]*>/g, ""), 80)} • ${formatDate(item.created_at)}`}
+                title={item.title}
+                badge={item.source_id}
+                subtitle={formatDate(item.created_at)}
                 href={item.url || undefined}
-                onClick={item.url ? undefined : () => {}}
+                onClick={() => setSelectedContent(item)}
               />
             ))}
           </div>
@@ -103,6 +104,19 @@ export default function ContentPage() {
           </div>
         )}
       </AppShell>
+
+        <ContentDetailModal
+          open={selectedContent !== null}
+          onClose={() => setSelectedContent(null)}
+          content={selectedContent}
+          onViewOriginal={() => setShowOriginalModal(true)}
+        />
+
+        <OriginalContentModal
+          open={showOriginalModal}
+          onClose={() => setShowOriginalModal(false)}
+          content={selectedContent}
+        />
     </AuthCheck>
   );
 }
