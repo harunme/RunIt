@@ -1,3 +1,33 @@
+export interface TaskLog {
+  id: string;
+  task_id: string;
+  level: "INFO" | "WARNING" | "ERROR";
+  message: string;
+  created_at: string;
+}
+
+export interface TaskContent {
+  id: string;
+  task_id: string;
+  source_id: string;
+  title: string;
+  content: string;
+  url: string | null;
+  author: string | null;
+  published_at: string | null;
+  created_at: string;
+}
+
+export interface Task {
+  id: string;
+  source_id: string;
+  status: "pending" | "running" | "completed" | "failed";
+  error_message: string | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const TOKEN_KEY = "runit_token";
 
@@ -83,6 +113,14 @@ export const api = {
     },
     get: (id: string) => fetchAPI(`/api/tasks/${id}`),
     retry: (id: string) => fetchAPI(`/api/tasks/${id}/retry`, { method: "POST" }),
+    getLogs: (id: string, params?: { page?: number; page_size?: number; level?: string }) => {
+      const query = new URLSearchParams(params as any).toString();
+      return fetchAPI(`/api/tasks/${id}/logs${query ? `?${query}` : ""}`);
+    },
+    getContents: (id: string, params?: { page?: number; page_size?: number }) => {
+      const query = new URLSearchParams(params as any).toString();
+      return fetchAPI(`/api/tasks/${id}/contents${query ? `?${query}` : ""}`);
+    },
   },
   publishers: {
     list: () => fetchAPI("/api/publishers"),
