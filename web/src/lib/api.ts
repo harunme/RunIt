@@ -111,8 +111,13 @@ export const api = {
     run: (id: string) => fetchAPI(`/api/sources/${id}/run`, { method: "POST" }),
   },
   tasks: {
-    list: (params?: { page?: number; page_size?: number; status?: string }) => {
-      const query = new URLSearchParams(params as any).toString();
+    list: (params?: { page?: number; page_size?: number; status?: string; source_id?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.set('page', params.page.toString());
+      if (params?.page_size) searchParams.set('page_size', params.page_size.toString());
+      if (params?.status) searchParams.set('status', params.status);
+      if (params?.source_id) searchParams.set('source_id', params.source_id);
+      const query = searchParams.toString();
       return fetchAPI(`/api/tasks${query ? `?${query}` : ""}`);
     },
     get: (id: string) => fetchAPI(`/api/tasks/${id}`),
