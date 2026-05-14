@@ -94,3 +94,7 @@
 .animate-slide-in-right {
   animation: slideInRight 0.3s ease-out;
 }
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
