@@ -4,6 +4,7 @@ from app.models.data_source import DataSource
 from app.models.task import Task
 from app.models.publisher import Publisher
 from app.models.published_item import PublishedItem
+from app.models.user import User
 
 __all__ = [
     "LLMProvider",
@@ -12,4 +13,5 @@ __all__ = [
     "Task",
     "Publisher",
     "PublishedItem",
+    "User",
 ]
