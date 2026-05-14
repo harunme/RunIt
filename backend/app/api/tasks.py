@@ -2,11 +2,12 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.task import Task, TaskLog
-from app.schemas.task import TaskListResponse, TaskResponse, TaskLogResponse, TaskLogListResponse
+from app.schemas.task import TaskListResponse, TaskResponse, TaskLogResponse, TaskLogListResponse, TaskContentItem, TaskContentListResponse
 from app.models.content import Content
 
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
@@ -20,8 +21,8 @@ async def list_tasks(
     db: AsyncSession = Depends(get_db)
 ):
     """List tasks with pagination and optional status filter."""
-    # Build base query
-    base_query = select(Task)
+    # Build base query with eager loading of data_source
+    base_query = select(Task).options(selectinload(Task.data_source))
     count_query = select(func.count()).select_from(Task)
 
     if status:
@@ -39,8 +40,26 @@ async def list_tasks(
     result = await db.execute(base_query)
     tasks = result.scalars().all()
 
+    # Transform tasks to include source_name
+    task_responses = []
+    for task in tasks:
+        task_dict = {
+            "id": task.id,
+            "source_id": task.source_id,
+            "source_name": task.data_source.name if task.data_source else None,
+            "status": task.status,
+            "raw_content": task.raw_content,
+            "processed_content": task.processed_content,
+            "images": task.images,
+            "error_message": task.error_message,
+            "created_at": task.created_at,
+            "started_at": task.started_at,
+            "completed_at": task.completed_at,
+        }
+        task_responses.append(TaskResponse(**task_dict))
+
     return TaskListResponse(
-        items=tasks,
+        items=task_responses,
         total=total,
         page=page,
         page_size=page_size,
@@ -105,7 +124,7 @@ async def get_task_logs(
     )
 
 
-@router.get("/{task_id}/contents")
+@router.get("/{task_id}/contents", response_model=TaskContentListResponse)
 async def get_task_contents(
     task_id: str,
     page: int = Query(1, ge=1, description="Page number"),
@@ -136,12 +155,12 @@ async def get_task_contents(
     result = await db.execute(query)
     contents = result.scalars().all()
 
-    return {
-        "items": contents,
-        "total": total,
-        "page": page,
-        "page_size": page_size,
-    }
+    return TaskContentListResponse(
+        items=contents,
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.post("/{task_id}/retry")

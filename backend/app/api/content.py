@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from sqlalchemy import select, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
+from datetime import datetime
 
 from app.database import get_db
 from app.models.content import Content
@@ -20,6 +21,13 @@ class ContentResponse(BaseModel):
     author: Optional[str] = None
     published_at: Optional[str] = None
     created_at: str
+
+    @model_validator(mode='before')
+    @classmethod
+    def serialize_datetime(cls, data):
+        if hasattr(data, 'created_at') and isinstance(data.created_at, datetime):
+            data.created_at = data.created_at.isoformat()
+        return data
 
     class Config:
         from_attributes = True

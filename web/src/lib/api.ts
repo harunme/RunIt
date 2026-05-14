@@ -21,6 +21,7 @@ export interface TaskContent {
 export interface Task {
   id: string;
   source_id: string;
+  source_name: string | null;
   status: "pending" | "running" | "completed" | "failed";
   error_message: string | null;
   created_at: string;

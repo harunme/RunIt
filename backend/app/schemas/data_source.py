@@ -8,7 +8,7 @@ class DataSourceBase(BaseModel):
     """Base schema for DataSource."""
     name: str = Field(..., max_length=255)
     type: str = Field(..., max_length=50)  # github, twitter, rss
-    config: str  # JSON stored as text
+    config: dict = Field(default_factory=dict)  # Stored as JSON in DB
     agent_id: Optional[str] = None
     schedule: str = Field(..., max_length=100)  # cron expression
     enabled: bool = True

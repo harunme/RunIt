@@ -8,6 +8,7 @@ class TaskResponse(BaseModel):
     """Schema for Task response."""
     id: str
     source_id: str
+    source_name: Optional[str] = None
     status: str = Field(default="pending")  # pending, running, completed, failed
     raw_content: Optional[str] = None
     processed_content: Optional[str] = None
@@ -18,6 +19,29 @@ class TaskResponse(BaseModel):
     completed_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
+
+
+class TaskContentItem(BaseModel):
+    """Schema for Content item in task."""
+    id: str
+    task_id: str
+    source_id: str
+    title: str
+    content: str
+    url: Optional[str] = None
+    author: Optional[str] = None
+    published_at: Optional[datetime] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class TaskContentListResponse(BaseModel):
+    """Schema for paginated TaskContent list response."""
+    items: List[TaskContentItem]
+    total: int
+    page: int
+    page_size: int
 
 
 class TaskListResponse(BaseModel):

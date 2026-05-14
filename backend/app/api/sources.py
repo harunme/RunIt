@@ -1,17 +1,46 @@
+import json
 import uuid
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.data_source import DataSource
-from app.schemas.data_source import (
-    DataSourceCreate,
-    DataSourceUpdate,
-    DataSourceResponse,
-)
+
+
+class DataSourceCreate(BaseModel):
+    name: str
+    type: str
+    config: dict = Field(default_factory=dict)
+    agent_id: Optional[str] = None
+    schedule: str
+    enabled: bool = True
+
+
+class DataSourceUpdate(BaseModel):
+    name: Optional[str] = None
+    type: Optional[str] = None
+    config: Optional[dict] = None
+    agent_id: Optional[str] = None
+    schedule: Optional[str] = None
+    enabled: Optional[bool] = None
+
+
+class DataSourceResponse(BaseModel):
+    id: str
+    name: str
+    type: str
+    config: dict
+    agent_id: Optional[str]
+    schedule: str
+    enabled: bool
+    last_run_at: Optional[datetime]
+
+    model_config = {"from_attributes": True}
 
 router = APIRouter(prefix="/api/sources", tags=["Data Sources"])
 
@@ -21,7 +50,19 @@ async def list_sources(db: AsyncSession = Depends(get_db)):
     """List all data sources."""
     result = await db.execute(select(DataSource))
     sources = result.scalars().all()
-    return sources
+    return [
+        DataSourceResponse(
+            id=s.id,
+            name=s.name,
+            type=s.type,
+            config=json.loads(s.config) if isinstance(s.config, str) else s.config,
+            agent_id=s.agent_id,
+            schedule=s.schedule,
+            enabled=s.enabled,
+            last_run_at=s.last_run_at,
+        )
+        for s in sources
+    ]
 
 
 @router.post("", response_model=DataSourceResponse, status_code=201)
@@ -34,7 +75,7 @@ async def create_source(
         id=str(uuid.uuid4()),
         name=source_data.name,
         type=source_data.type,
-        config=source_data.config,
+        config=json.dumps(source_data.config),  # Convert dict to JSON string
         agent_id=source_data.agent_id,
         schedule=source_data.schedule,
         enabled=source_data.enabled,
@@ -42,7 +83,16 @@ async def create_source(
     db.add(source)
     await db.commit()
     await db.refresh(source)
-    return source
+    return DataSourceResponse(
+        id=source.id,
+        name=source.name,
+        type=source.type,
+        config=source_data.config,
+        agent_id=source.agent_id,
+        schedule=source.schedule,
+        enabled=source.enabled,
+        last_run_at=source.last_run_at,
+    )
 
 
 @router.get("/{source_id}", response_model=DataSourceResponse)
@@ -57,7 +107,16 @@ async def get_source(
     source = result.scalar_one_or_none()
     if not source:
         raise HTTPException(status_code=404, detail="Source not found")
-    return source
+    return DataSourceResponse(
+        id=source.id,
+        name=source.name,
+        type=source.type,
+        config=json.loads(source.config) if isinstance(source.config, str) else source.config,
+        agent_id=source.agent_id,
+        schedule=source.schedule,
+        enabled=source.enabled,
+        last_run_at=source.last_run_at,
+    )
 
 
 @router.put("/{source_id}", response_model=DataSourceResponse)

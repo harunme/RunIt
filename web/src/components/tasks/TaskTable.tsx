@@ -7,12 +7,14 @@ interface TaskTableProps {
   onTaskClick: (task: Task) => void;
 }
 
-const statusColors = {
+const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
   running: "bg-blue-100 text-blue-800",
   completed: "bg-green-100 text-green-800",
   failed: "bg-red-100 text-red-800",
 };
+
+const getStatusColor = (status: string) => statusColors[status] || "bg-gray-100 text-gray-800";
 
 export function TaskTable({ tasks, onTaskClick }: TaskTableProps) {
   const formatDate = (date: string | null) => {
@@ -34,6 +36,9 @@ export function TaskTable({ tasks, onTaskClick }: TaskTableProps) {
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              来源
+            </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               状态
             </th>
@@ -58,9 +63,12 @@ export function TaskTable({ tasks, onTaskClick }: TaskTableProps) {
               onClick={() => onTaskClick(task)}
               className="hover:bg-gray-50 cursor-pointer transition-colors"
             >
+              <td className="px-4 py-3 text-sm text-gray-900">
+                {task.source_name || "-"}
+              </td>
               <td className="px-4 py-3">
                 <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[task.status]}`}
+                  className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(task.status)}`}
                 >
                   {task.status}
                 </span>
